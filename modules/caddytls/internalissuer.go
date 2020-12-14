@@ -159,6 +159,21 @@ func (iss *InternalIssuer) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				if !d.AllArgs(&iss.CA) {
 					return d.ArgErr()
 				}
+			case "lifetime":
+				var lifetimeStr string
+				if !d.AllArgs(&lifetimeStr) {
+					return d.ArgErr()
+				}
+				lifetime, err := caddy.ParseDuration(lifetimeStr)
+				if err != nil {
+					return d.Errf("invalid lifetime duration %s: %v", lifetimeStr, err)
+				}
+				iss.Lifetime = caddy.Duration(lifetime)
+			case "sign_with_root":
+				if d.NextArg() {
+					return d.ArgErr()
+				}
+				iss.SignWithRoot = true
 			}
 		}
 	}
